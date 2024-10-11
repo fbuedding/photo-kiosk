@@ -1,0 +1,11 @@
+[package]
+name = "rust-raylib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+opencv = { version = "0.93.1", features = ["clang-runtime"] }
+peak_alloc = "0.2.1"
+[build-dependencies]
+cmake = "0.1.51"
+
