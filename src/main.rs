@@ -8,16 +8,56 @@ use display_options::{FILL, SHOW_DEBUG_INFO};
 use opencv::core::flip;
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
-mod raylib;
-use opencv::videoio::{VideoCapture, CAP_ANY, CAP_PROP_BUFFERSIZE, CAP_PROP_FPS};
+use opencv::videoio::{VideoCapture, CAP_ANY};
 use peak_alloc::PeakAlloc;
 use raylib::config_flags::*;
 
 use colors::{RED, WHITE};
+mod raylib;
 use raylib::*;
 
 #[global_allocator]
 static PEAK_ALLOC: PeakAlloc = PeakAlloc;
+
+enum State {
+    Startup,
+    Idle,
+    Recording(Instant),
+    Capturing,
+    Presenting,
+}
+
+struct KioskState {
+    state: State,
+}
+
+impl KioskState {
+    fn poll(&mut self) {
+        match self.state {
+            State::Startup => self.state = State::Idle,
+            State::Idle => {}
+            State::Recording(i) => {
+                let duration = i.elapsed().as_secs_f32();
+                if duration > 5. {
+                    self.state = State::Idle
+                }
+            }
+            State::Capturing => todo!(),
+            State::Presenting => todo!(),
+        }
+    }
+    fn new() -> Self {
+        Self {
+            state: State::new(),
+        }
+    }
+}
+
+impl State {
+    fn new() -> Self {
+        Self::Startup
+    }
+}
 
 struct WebcamFrame {
     frame: Mat,
@@ -69,6 +109,7 @@ mod display_options {
     pub const FILL: u32 = 0b0000_0010;
 }
 fn main() {
+    let mut state = KioskState::new();
     let thread_should_stop = Arc::new(AtomicBool::new(false));
     let mut cap = VideoCapture::new(0, CAP_ANY).unwrap();
     if !cap.is_opened().unwrap() {
@@ -108,6 +149,7 @@ fn main() {
 
     let mut texture = load_texture_mat(&frame.lock().unwrap().frame);
     while !window_should_close() {
+        state.poll();
         let mut webcam_fps: f32 = 0.;
         let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
 
@@ -121,6 +163,9 @@ fn main() {
         }
         if is_key_pressed(KeyboardKeys::KEY_D) {
             display_options_state ^= SHOW_DEBUG_INFO;
+        }
+        if is_key_pressed(KeyboardKeys::KEY_C) {
+            state.state = State::Recording(Instant::now());
         }
 
         let scale = if (display_options_state & FILL) != 0 {
@@ -147,9 +192,26 @@ fn main() {
         //------------------------drawing----------------------------
         begin_drawing();
         clear_background(0xa9_a9_a9_ff.into());
-        draw_texture_ex(&texture, pos, 0., scale, WHITE);
+        match state.state {
+            State::Startup => todo!(),
+            State::Idle => {
+                draw_texture_ex(&texture, pos, 0., scale, WHITE);
 
-        draw_ring(ring_position, 30., ring_outer_radius, 0., 360., 360, WHITE);
+                draw_ring(ring_position, 30., ring_outer_radius, 0., 360., 360, WHITE);
+            }
+            State::Recording(instant) => {
+                draw_texture_ex(&texture, pos, 0., scale, WHITE);
+                draw_text(
+                    &format!("{}", instant.elapsed().as_secs()),
+                    (screen_size.0 / 2. - 50.).round() as i32,
+                    (screen_size.1 / 2. - 50.).round() as i32,
+                    100,
+                    RED,
+                );
+            }
+            State::Capturing => todo!(),
+            State::Presenting => todo!(),
+        }
 
         if (display_options_state & SHOW_DEBUG_INFO) != 0 {
             draw_debug_info(&texture, webcam_fps);

@@ -499,6 +499,7 @@ type int = i32;
 #[allow(non_camel_case_types)]
 type uint = u32;
 
+#[link(name = "raylib")]
 extern "C" {
     fn InitWindow(width: c_int, height: c_int, title: *const c_char);
     fn SetTargetFPS(fps: c_int); // Set target FPS (maximum)

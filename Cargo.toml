@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 opencv = { version = "0.93.1", features = ["clang-runtime"] }
 peak_alloc = "0.2.1"
-[build-dependencies]
-cmake = "0.1.51"
+
+[target.aarch64-unknown-linux-gnu.dependencies]
+opencv = { version = "0.93.1", features = [] }
 
