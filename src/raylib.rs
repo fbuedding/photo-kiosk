@@ -408,8 +408,9 @@ impl ops::Div<f32> for Vector2 {
 }
 
 #[repr(C)]
-struct Image {
-    data: *mut c_void,
+#[derive(Debug)]
+pub struct RImage {
+    pub data: *mut c_void,
     width: c_int,        // Image base width
     height: c_int,       // Image base height
     mipmaps: c_int,      // Mipmap levels, 1 by default
@@ -426,7 +427,7 @@ pub struct Texture {
     pub format: PixelFormat, // Data format (PixelFormat type)
 }
 
-impl From<&Mat> for Image {
+impl From<&Mat> for RImage {
     fn from(m: &Mat) -> Self {
         let f = match m.typ() {
             CV_8UC3 => PixelFormat::PIXELFORMAT_UNCOMPRESSED_R8G8B8,
@@ -510,7 +511,7 @@ extern "C" {
     fn ClearBackground(color: RColor);
     fn SetConfigFlags(config_flags: u32);
     fn LoadShader(vsFileName: *const c_char, fsFileName: *const c_char) -> RShader;
-    fn LoadTextureFromImage(image: Image) -> Texture;
+    fn LoadTextureFromImage(image: RImage) -> Texture;
     fn DrawTexture(texture: &Texture, posX: c_int, posY: c_int, tint: RColor);
     fn UpdateTexture(texture: &mut Texture, pixels: *mut c_void);
     fn DrawFPS(posX: c_int, posY: c_int); // Draw current FPS
@@ -538,6 +539,12 @@ extern "C" {
         segments: c_int,
         color: RColor,
     );
+    fn LoadImageFromMemory(
+        fileType: *const c_char,
+        fileData: *const c_uchar,
+        dataSize: c_int,
+    ) -> RImage;
+    fn LoadImage(fileName: *const c_char) -> RImage;
 
 }
 
@@ -589,7 +596,7 @@ pub fn set_target_fps(fps: int) {
 
 pub fn load_texture_mat(m: &Mat) -> Texture {
     unsafe {
-        let img: Image = m.into();
+        let img: RImage = m.into();
         let text = LoadTextureFromImage(img);
         return text;
     }
@@ -621,7 +628,8 @@ pub fn draw_texture_ex(
 
 pub fn update_texture(texture: &mut Texture, m: &Mat) {
     unsafe {
-        UpdateTexture(texture, m.ptr(0).unwrap() as *mut c_void);
+        //UpdateTexture(texture, m.ptr(0).unwrap() as *mut c_void);
+        UpdateTexture(texture, m.data() as *mut c_void);
     }
 }
 pub fn draw_text(text: &str, pos_x: int, pos_y: int, font_size: int, color: Color) {
@@ -670,4 +678,16 @@ pub fn draw_ring(
             color.into(),
         )
     };
+}
+pub fn load_image(file: &str) -> RImage {
+    let file_type = CString::new(file).unwrap();
+    unsafe { LoadImage(file_type.as_ptr()) }
+}
+pub fn load_image_from_memory(file_type: &str, file_data: &[u8], data_size: usize) -> RImage {
+    let file_type = CString::new(file_type).unwrap();
+    unsafe { LoadImageFromMemory(file_type.as_ptr(), file_data.as_ptr(), data_size as i32) }
+}
+
+pub fn load_texture_from_image(image: RImage) -> Texture {
+    unsafe { LoadTextureFromImage(image) }
 }

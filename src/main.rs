@@ -4,9 +4,8 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
-use display_options::{FILL, SHOW_DEBUG_INFO};
+use display_options::{FILL, SHOW_DEBUG_IMAGE, SHOW_DEBUG_INFO};
 use opencv::core::{flip, CV_8UC3};
-use opencv::imgcodecs::{imwrite, ImwriteFlags};
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
 use opencv::videoio::{VideoCapture, CAP_ANY};
@@ -108,9 +107,13 @@ fn get_new_frame(cap: &mut VideoCapture) -> Result<Option<Mat>, Box<dyn Error>> 
 mod display_options {
     pub const SHOW_DEBUG_INFO: u32 = 0b0000_0001;
     pub const FILL: u32 = 0b0000_0010;
+    pub const SHOW_DEBUG_IMAGE: u32 = 4;
 }
 fn main() {
     let mut state = KioskState::new();
+    let debug_img = include_bytes!("img/test.png");
+    let debug_img = load_image_from_memory(".png", debug_img, debug_img.len());
+
     let thread_should_stop = Arc::new(AtomicBool::new(false));
     let mut cap = VideoCapture::new(0, CAP_ANY).unwrap();
     if !cap.is_opened().unwrap() {
@@ -132,7 +135,7 @@ fn main() {
             match new_frame {
                 Some(new_frame) => {
                     if new_frame.empty() {
-                        continue;
+                        panic!("Webcam frame should not be empty");
                     }
                     if let Ok(mut frame) = capture_frame.lock() {
                         (*frame).frame = new_frame;
@@ -153,6 +156,7 @@ fn main() {
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
 
     init_window(1024, 600, "Susi");
+    let debug_texture = load_texture_from_image(debug_img);
     let mut texture = load_texture_mat(&frame.lock().unwrap().frame);
     while !window_should_close() {
         state.poll();
@@ -173,6 +177,15 @@ fn main() {
         if is_key_pressed(KeyboardKeys::KEY_C) {
             state.state = State::Recording(Instant::now());
         }
+        if is_key_pressed(KeyboardKeys::KEY_I) {
+            display_options_state ^= SHOW_DEBUG_IMAGE;
+        }
+
+        let texture = if display_options_state & SHOW_DEBUG_IMAGE != 0 {
+            &debug_texture
+        } else {
+            &texture
+        };
 
         let scale = if (display_options_state & FILL) != 0 {
             f32::max(
