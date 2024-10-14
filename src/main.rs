@@ -151,7 +151,7 @@ fn main() {
         };
     });
     while frame.lock().unwrap().frame.typ() != CV_8UC3 {}
-    let mut display_options_state = FILL;
+    let mut display_options_state = SHOW_DEBUG_IMAGE;
 
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
 
