@@ -1,3 +1,4 @@
+use core::panic;
 use std::error::Error;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
@@ -115,12 +116,14 @@ fn main() {
     let debug_img = load_image_from_memory(".png", debug_img, debug_img.len());
 
     let thread_should_stop = Arc::new(AtomicBool::new(false));
-    let mut cap = VideoCapture::new(0, CAP_ANY).unwrap();
+    let Ok(mut cap) = VideoCapture::new(0, CAP_ANY) else {
+        panic!("Could not open VideoCapture");
+    };
     if !cap.is_opened().unwrap() {
         panic!("Could not open camera")
     }
 
-    let frame = WebcamFrame::new(get_new_frame(&mut cap).unwrap().unwrap());
+    let frame = WebcamFrame::new(Mat::default());
 
     let frame = Arc::new(Mutex::new(frame));
 
@@ -150,14 +153,18 @@ fn main() {
             }
         };
     });
-    while frame.lock().unwrap().frame.typ() != CV_8UC3 {}
     let mut display_options_state = SHOW_DEBUG_IMAGE;
 
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
 
     init_window(1024, 600, "Susi");
     let debug_texture = load_texture_from_image(debug_img);
-    let mut texture = load_texture_mat(&frame.lock().unwrap().frame);
+    let mut texture: Texture;
+    if let Ok(frame) = frame.lock() {
+        texture = load_texture_mat(&frame.frame);
+    } else {
+        panic!("Different thread panicked");
+    }
     while !window_should_close() {
         state.poll();
         if is_key_pressed(KeyboardKeys::KEY_F) {
@@ -232,6 +239,9 @@ fn main() {
             }
             State::Capturing => todo!(),
             State::Presenting => todo!(),
+        }
+        if display_options_state & SHOW_DEBUG_IMAGE != 0 {
+            draw_texture(texture, 0, 0, WHITE);
         }
 
         if (display_options_state & SHOW_DEBUG_INFO) != 0 {
