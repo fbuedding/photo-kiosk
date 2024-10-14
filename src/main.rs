@@ -9,7 +9,7 @@ use display_options::{FILL, SHOW_DEBUG_IMAGE, SHOW_DEBUG_INFO};
 use opencv::core::flip;
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
-use opencv::videoio::{VideoCapture, CAP_ANY};
+use opencv::videoio::{VideoCapture, CAP_ANY, CAP_PROP_FRAME_HEIGHT, CAP_PROP_FRAME_WIDTH};
 use peak_alloc::PeakAlloc;
 use raylib::config_flags::*;
 
@@ -123,6 +123,9 @@ fn main() {
         panic!("Could not open camera")
     }
 
+    let _ = cap.set(CAP_PROP_FRAME_WIDTH, 1024.);
+    let _ = cap.set(CAP_PROP_FRAME_HEIGHT, 576.);
+
     let frame = WebcamFrame::new(Mat::default());
 
     let frame = Arc::new(Mutex::new(frame));
@@ -155,10 +158,13 @@ fn main() {
     });
     let mut display_options_state = FILL;
 
-    set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    // For development in drm it dowsn't even work
+    set_config_flags(FLAG_WINDOW_RESIZABLE);
 
     init_window(1024, 600, "Susi");
 
+    while frame.lock().unwrap().frame.typ() != 16 {}
+    {}
     let debug_texture = load_texture_from_image(debug_img);
     let texture: Texture;
     if let Ok(frame) = frame.lock() {
