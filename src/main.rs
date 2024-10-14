@@ -6,6 +6,7 @@ use std::time::Instant;
 
 use display_options::{FILL, SHOW_DEBUG_INFO};
 use opencv::core::{flip, CV_8UC3};
+use opencv::imgcodecs::{imwrite, ImwriteFlags};
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
 use opencv::videoio::{VideoCapture, CAP_ANY};
@@ -115,7 +116,9 @@ fn main() {
     if !cap.is_opened().unwrap() {
         panic!("Could not open camera")
     }
+
     let frame = WebcamFrame::new(get_new_frame(&mut cap).unwrap().unwrap());
+
     let frame = Arc::new(Mutex::new(frame));
 
     let capture_frame = Arc::clone(&frame);
@@ -128,6 +131,9 @@ fn main() {
         if let Ok(new_frame) = get_new_frame(&mut cap) {
             match new_frame {
                 Some(new_frame) => {
+                    if new_frame.empty() {
+                        continue;
+                    }
                     if let Ok(mut frame) = capture_frame.lock() {
                         (*frame).frame = new_frame;
 
@@ -154,10 +160,6 @@ fn main() {
         let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
 
         if let Ok(frame) = frame.lock() {
-            if texture.width != frame.frame.cols() || texture.height != frame.frame.rows() {
-                println!("Webcam format changed, reloading texture!");
-                texture = load_texture_mat(&frame.frame);
-            }
             update_texture(&mut texture, &frame.frame);
             webcam_fps = frame.avg_fps();
         }
