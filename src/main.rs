@@ -160,14 +160,6 @@ fn main() {
     let mut texture = load_texture_mat(&frame.lock().unwrap().frame);
     while !window_should_close() {
         state.poll();
-        let mut webcam_fps: f32 = 0.;
-        let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
-
-        if let Ok(frame) = frame.lock() {
-            update_texture(&mut texture, &frame.frame);
-            webcam_fps = frame.avg_fps();
-        }
-
         if is_key_pressed(KeyboardKeys::KEY_F) {
             display_options_state ^= FILL;
         }
@@ -179,6 +171,16 @@ fn main() {
         }
         if is_key_pressed(KeyboardKeys::KEY_I) {
             display_options_state ^= SHOW_DEBUG_IMAGE;
+        }
+
+        let mut webcam_fps: f32 = 0.;
+        let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
+
+        if let Ok(frame) = frame.lock() {
+            if display_options_state & SHOW_DEBUG_IMAGE == 0 {
+                update_texture(&mut texture, &frame.frame);
+            }
+            webcam_fps = frame.avg_fps();
         }
 
         let texture = if display_options_state & SHOW_DEBUG_IMAGE != 0 {
