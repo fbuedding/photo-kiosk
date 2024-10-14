@@ -154,6 +154,9 @@ fn main() {
         let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
 
         if let Ok(frame) = frame.lock() {
+            if frame.frame.typ() != CV_8UC3 {
+                panic!("capture frame has wrong type:\n {}", frame.frame.typ())
+            }
             update_texture(&mut texture, &frame.frame);
             webcam_fps = frame.avg_fps();
         }

@@ -430,7 +430,7 @@ impl From<&Mat> for Image {
     fn from(m: &Mat) -> Self {
         let f = match m.typ() {
             CV_8UC3 => PixelFormat::PIXELFORMAT_UNCOMPRESSED_R8G8B8,
-            _ => panic!("Type not supported {:#?}", m),
+            _ => panic!("Matrix Type not supported\n {:#?}", m),
         };
 
         let size = m.size().unwrap();
