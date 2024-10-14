@@ -6,7 +6,7 @@ use std::thread;
 use std::time::Instant;
 
 use display_options::{FILL, SHOW_DEBUG_IMAGE, SHOW_DEBUG_INFO};
-use opencv::core::{flip, CV_8UC3};
+use opencv::core::flip;
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
 use opencv::videoio::{VideoCapture, CAP_ANY};
@@ -153,14 +153,14 @@ fn main() {
             }
         };
     });
-    let mut display_options_state = SHOW_DEBUG_IMAGE;
+    let mut display_options_state = FILL;
 
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
 
     init_window(1024, 600, "Susi");
 
     let debug_texture = load_texture_from_image(debug_img);
-    let mut texture: Texture;
+    let texture: Texture;
     if let Ok(frame) = frame.lock() {
         texture = load_texture_mat(&frame.frame);
     } else {
