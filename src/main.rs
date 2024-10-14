@@ -158,10 +158,12 @@ fn main() {
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
 
     init_window(1024, 600, "Susi");
+
     let debug_texture = load_texture_from_image(debug_img);
     let mut texture: Texture;
     if let Ok(frame) = frame.lock() {
-        texture = load_texture_mat(&frame.frame);
+        //texture = load_texture_mat(&frame.frame);
+        texture = debug_texture.clone();
     } else {
         panic!("Different thread panicked");
     }

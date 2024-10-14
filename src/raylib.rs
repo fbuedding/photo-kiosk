@@ -358,7 +358,7 @@ pub enum KeyboardKeys {
 
 #[allow(non_camel_case_types)]
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
 pub enum PixelFormat {
     PIXELFORMAT_UNCOMPRESSED_GRAYSCALE = 1, // 8 bit per pixel (no alpha)
@@ -418,7 +418,7 @@ pub struct RImage {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Texture {
     id: c_uint,              // OpenGL texture idb
     pub width: c_int,        // Texture base width
