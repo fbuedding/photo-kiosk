@@ -154,14 +154,10 @@ fn main() {
         let screen_size = Vector2(get_screen_width() as f32, get_screen_height() as f32);
 
         if let Ok(frame) = frame.lock() {
-            if frame.frame.typ() != CV_8UC3 {
-                panic!("capture frame has wrong type:\n {}", frame.frame.typ())
+            if texture.width != frame.frame.cols() || texture.height != frame.frame.rows() {
+                println!("Webcam format changed, reloading texture!");
+                texture = load_texture_mat(&frame.frame);
             }
-            println!(
-                "Updating texture with format {:?} with image with:{}",
-                &texture.format,
-                frame.frame.typ()
-            );
             update_texture(&mut texture, &frame.frame);
             webcam_fps = frame.avg_fps();
         }
