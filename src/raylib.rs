@@ -360,7 +360,7 @@ pub enum KeyboardKeys {
 #[repr(C)]
 #[derive(Debug)]
 #[allow(dead_code)]
-enum PixelFormat {
+pub enum PixelFormat {
     PIXELFORMAT_UNCOMPRESSED_GRAYSCALE = 1, // 8 bit per pixel (no alpha)
     PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA,    // 8*2 bpp (2 channels)
     PIXELFORMAT_UNCOMPRESSED_R5G6B5,        // 16 bpp
@@ -419,11 +419,11 @@ struct Image {
 #[repr(C)]
 #[derive(Debug)]
 pub struct Texture {
-    id: c_uint,          // OpenGL texture idb
-    pub width: c_int,    // Texture base width
-    pub height: c_int,   // Texture base height
-    mipmaps: c_int,      // Mipmap levels, 1 by default
-    format: PixelFormat, // Data format (PixelFormat type)
+    id: c_uint,              // OpenGL texture idb
+    pub width: c_int,        // Texture base width
+    pub height: c_int,       // Texture base height
+    mipmaps: c_int,          // Mipmap levels, 1 by default
+    pub format: PixelFormat, // Data format (PixelFormat type)
 }
 
 impl From<&Mat> for Image {

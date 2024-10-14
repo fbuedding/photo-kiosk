@@ -145,9 +145,8 @@ fn main() {
     let mut display_options_state = FILL;
 
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
-    init_window(1024, 600, "Susi");
 
-    println!("-------------Loading Texture------------");
+    init_window(1024, 600, "Susi");
     let mut texture = load_texture_mat(&frame.lock().unwrap().frame);
     while !window_should_close() {
         state.poll();
@@ -158,6 +157,11 @@ fn main() {
             if frame.frame.typ() != CV_8UC3 {
                 panic!("capture frame has wrong type:\n {}", frame.frame.typ())
             }
+            println!(
+                "Updating texture with format {:?} with image with:{}",
+                &texture.format,
+                frame.frame.typ()
+            );
             update_texture(&mut texture, &frame.frame);
             webcam_fps = frame.avg_fps();
         }
