@@ -155,7 +155,7 @@ fn main() {
     });
     let mut display_options_state = FILL;
 
-    set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
+    set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
     init_window(1024, 600, "Susi");
 
