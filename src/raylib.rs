@@ -512,7 +512,7 @@ extern "C" {
     fn SetConfigFlags(config_flags: u32);
     fn LoadShader(vsFileName: *const c_char, fsFileName: *const c_char) -> RShader;
     fn LoadTextureFromImage(image: RImage) -> Texture;
-    fn DrawTexture(texture: &Texture, posX: c_int, posY: c_int, tint: RColor);
+    fn DrawTexture(texture: Texture, posX: c_int, posY: c_int, tint: RColor);
     fn UpdateTexture(texture: &mut Texture, pixels: *mut c_void);
     fn DrawFPS(posX: c_int, posY: c_int); // Draw current FPS
     fn DrawText(text: *const c_char, posX: c_int, posY: c_int, fontSize: c_int, color: RColor); // Draw text (using default font)
@@ -521,7 +521,7 @@ extern "C" {
     fn ToggleFullscreen();
     fn SetWindowSize(width: int, height: int);
     fn DrawTextureEx(
-        texture: &Texture,
+        texture: Texture,
         position: RVector2,
         rotation: c_float,
         scale: c_float,
@@ -604,7 +604,7 @@ pub fn load_texture_mat(m: &Mat) -> Texture {
 
 pub fn draw_texture(texture: &Texture, pos_x: int, pos_y: int, tint: Color) {
     unsafe {
-        DrawTexture(texture, pos_x, pos_y, tint.into());
+        DrawTexture(*texture, pos_x, pos_y, tint.into());
     }
 }
 
@@ -617,7 +617,7 @@ pub fn draw_texture_ex(
 ) {
     unsafe {
         DrawTextureEx(
-            texture,
+            *texture,
             RVector2(position.0, position.1),
             rotation,
             scale,

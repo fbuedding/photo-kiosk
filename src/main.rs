@@ -162,8 +162,7 @@ fn main() {
     let debug_texture = load_texture_from_image(debug_img);
     let mut texture: Texture;
     if let Ok(frame) = frame.lock() {
-        //texture = load_texture_mat(&frame.frame);
-        texture = debug_texture.clone();
+        texture = load_texture_mat(&frame.frame);
     } else {
         panic!("Different thread panicked");
     }
