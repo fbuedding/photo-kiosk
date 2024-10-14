@@ -513,7 +513,7 @@ extern "C" {
     fn LoadShader(vsFileName: *const c_char, fsFileName: *const c_char) -> RShader;
     fn LoadTextureFromImage(image: RImage) -> Texture;
     fn DrawTexture(texture: Texture, posX: c_int, posY: c_int, tint: RColor);
-    fn UpdateTexture(texture: &mut Texture, pixels: *mut c_void);
+    fn UpdateTexture(texture: Texture, pixels: *mut c_void);
     fn DrawFPS(posX: c_int, posY: c_int); // Draw current FPS
     fn DrawText(text: *const c_char, posX: c_int, posY: c_int, fontSize: c_int, color: RColor); // Draw text (using default font)
     fn GetScreenWidth() -> c_int;
@@ -626,10 +626,10 @@ pub fn draw_texture_ex(
     };
 }
 
-pub fn update_texture(texture: &mut Texture, m: &Mat) {
+pub fn update_texture(texture: &Texture, m: &Mat) {
     unsafe {
         //UpdateTexture(texture, m.ptr(0).unwrap() as *mut c_void);
-        UpdateTexture(texture, m.data() as *mut c_void);
+        UpdateTexture(*texture, m.data() as *mut c_void);
     }
 }
 pub fn draw_text(text: &str, pos_x: int, pos_y: int, font_size: int, color: Color) {

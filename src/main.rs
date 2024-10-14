@@ -186,7 +186,7 @@ fn main() {
 
         if let Ok(frame) = frame.lock() {
             if display_options_state & SHOW_DEBUG_IMAGE == 0 {
-                update_texture(&mut texture, &frame.frame);
+                update_texture(&texture, &frame.frame);
             }
             webcam_fps = frame.avg_fps();
         }
