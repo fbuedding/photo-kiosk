@@ -5,7 +5,7 @@ use std::thread;
 use std::time::Instant;
 
 use display_options::{FILL, SHOW_DEBUG_INFO};
-use opencv::core::flip;
+use opencv::core::{flip, CV_8UC3};
 use opencv::imgproc::{cvt_color, COLOR_BGR2RGB};
 use opencv::prelude::*;
 use opencv::videoio::{VideoCapture, CAP_ANY};
@@ -141,7 +141,7 @@ fn main() {
             }
         };
     });
-
+    while frame.lock().unwrap().frame.typ() != CV_8UC3 {}
     let mut display_options_state = FILL;
 
     set_config_flags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
