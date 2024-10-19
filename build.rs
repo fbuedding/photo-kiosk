@@ -16,7 +16,7 @@ fn main() {
         "armv7-unknown-linux-gnueabihf" => {
             Command::new("make")
                 .args(["PLATFORM=PLATFORM_DRM"])
-                .current_dir(&format!("{}", out_dir.join("raylib/src").to_str().unwrap()))
+                .current_dir(out_dir.join("raylib/src").to_str().unwrap())
                 .status()
                 .unwrap();
 
@@ -39,7 +39,7 @@ fn main() {
         "aarch64-apple-darwin" => {
             Command::new("make")
                 .arg("PLATFORM=PLATFORM_DESKTOP")
-                .current_dir(&format!("{}", out_dir.join("raylib/src").to_str().unwrap()))
+                .current_dir(out_dir.join("raylib/src").to_str().unwrap())
                 .status()
                 .unwrap();
 
